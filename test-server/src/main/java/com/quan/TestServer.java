@@ -1,5 +1,7 @@
 package com.quan;
 
+import com.quan.registry.DefaultServiceRegistry;
+import com.quan.registry.ServiceRegistry;
 import com.quan.server.RpcServer;
 
 /**
@@ -9,8 +11,10 @@ import com.quan.server.RpcServer;
  */
 public class TestServer {
     public static void main(String[] args) {
-        HelloService helloService = new HelloServiceImplementation();
-        RpcServer rpcServer = new RpcServer();
-        rpcServer.register(helloService, 9000);
+        HelloService helloService = new HelloServiceImplementation(); // 创建服务
+        ServiceRegistry serviceRegistry = new DefaultServiceRegistry(); // 创建服务注册中心
+        serviceRegistry.register(helloService); // 注册服务
+        RpcServer rpcServer = new RpcServer(serviceRegistry); // 创建服务端
+        rpcServer.start(6666); // 启动服务端
     }
 }

@@ -19,9 +19,7 @@ import java.util.logging.Logger;
  */
 public class RpcClient {
 
-    /**
-     * 日志记录
-     */
+    // 日志记录
     private static final Logger logger = Logger.getLogger(RpcClient.class.getName());
 
     /**

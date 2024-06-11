@@ -7,7 +7,8 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * HelloObject @author Quan
+ * 用于测试的api实体
+ * @author Quan
  */
 @Data
 @AllArgsConstructor

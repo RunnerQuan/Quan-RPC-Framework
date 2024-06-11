@@ -7,69 +7,34 @@ import com.quan.enumeration.ResponseCode;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.logging.Logger;
 
 /**
- * 用于处理客户端的请求并将处理结果返回给客户端
+ * 进行过程调用的处理器
+ * @author Quan
  */
-public class RequestHandler implements Runnable {
+public class RequestHandler {
     /**
      * 用于记录与 RequestHandler 相关的日志
      */
     private static final Logger logger = Logger.getLogger(RequestHandler.class.getName());
 
-    /**
-     * 用于处理客户端的请求并将处理结果返回给客户端
-     */
-    private Socket socket;
-
-    /**
-     * 服务对象
-     */
-    private Object service;
-
-    /**
-     * 构造函数
-     */
-    public RequestHandler(Socket socket, Object service) {
-        this.socket = socket;
-        this.service = service;
-    }
-
-    /**
-     * 用于处理客户端的请求并将处理结果返回给客户端
-     */
-    @Override
-    public void run() {
-        // 使用try-with-resources确保操作完成后socket能够正常关闭
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
-
-            RpcRequest rpcRequest = (RpcRequest) objectInputStream.readObject();
-            Object returnObject = invokeMethod(rpcRequest); // 反射调用本地服务
-            objectOutputStream.writeObject(RpcResponse.success(returnObject));
-            objectOutputStream.flush();
-        } catch (IOException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
+    public Object handle(RpcRequest rpcRequest, Object service) {
+        Object result = null;
+        try {
+            result = invokeTargetMethod(rpcRequest, service);
+            logger.info("服务：" + rpcRequest.getInterfaceName() + " 成功调用方法：" + rpcRequest.getMethodName());
+        } catch (IllegalAccessException | InvocationTargetException e) {
             logger.severe("调用或发送时有错误发生：" + e);
         }
+        return result;
     }
 
-    /**
-     * 反射调用本地服务
-     * @param rpcRequest
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws ClassNotFoundException
-     */
-    private Object invokeMethod(RpcRequest rpcRequest) throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        Class<?> clazz = Class.forName(rpcRequest.getInterfaceName());
-        if(!clazz.isAssignableFrom((service.getClass()))) {
-            return RpcResponse.fail(ResponseCode.CLASS_NOT_FOUND);
-        }
+    private Object invokeTargetMethod(RpcRequest rpcRequest, Object service) throws IllegalAccessException, InvocationTargetException {
         Method method;
         try {
             method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());

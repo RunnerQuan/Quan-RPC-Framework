@@ -1,6 +1,10 @@
 package com.quan.client;
 
+import com.quan.RpcException.RpcException;
 import com.quan.entity.RpcRequest;
+import com.quan.entity.RpcResponse;
+import com.quan.enumeration.ResponseCode;
+import com.quan.enumeration.RpcError;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -30,10 +34,19 @@ public class RpcClient {
     public Object sendRequest(RpcRequest rpcRequest,  String host, int port) {
         try (Socket socket = new Socket(host, port)){
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             objectOutputStream.writeObject(rpcRequest);
             objectOutputStream.flush();
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            return objectInputStream.readObject();
+            RpcResponse rpcResponse = (RpcResponse) objectInputStream.readObject();
+            if(rpcResponse == null) {
+                logger.severe("服务调用失败，service：" + rpcRequest.getInterfaceName());
+                throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, " service:" + rpcRequest.getInterfaceName());
+            }
+            if(rpcResponse.getStatusCode() == null || rpcResponse.getStatusCode() != ResponseCode.SUCCESS.getCode()) {
+                logger.severe("服务调用失败，service：" + rpcRequest.getInterfaceName());
+                throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, " service:" + rpcRequest.getInterfaceName());
+            }
+            return rpcResponse.getData();
         } catch (IOException | ClassNotFoundException e) {
             logger.severe("调用时发生错误：" + e);
             return null;

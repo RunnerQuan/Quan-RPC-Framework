@@ -6,12 +6,14 @@ import com.quan.entity.RpcResponse;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.logging.Logger;
 
 /**
  * RPC 客户端动态代理
  * @author Quan
  */
 public class RpcClientProxy implements InvocationHandler {
+    private static final Logger logger = Logger.getLogger(RpcClientProxy.class.getName());
     private String host;
     private int port;
 
@@ -46,6 +48,7 @@ public class RpcClientProxy implements InvocationHandler {
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        logger.info("调用方法: " + method.getName());
         RpcRequest rpcRequest = RpcRequest.builder()
                 .interfaceName(method.getDeclaringClass().getName())
                 .methodName(method.getName())
@@ -53,6 +56,6 @@ public class RpcClientProxy implements InvocationHandler {
                 .paramTypes(method.getParameterTypes())
                 .build();
         RpcClient rpcClient = new RpcClient();
-        return ((RpcResponse) rpcClient.sendRequest(rpcRequest, host, port)).getData();
+        return rpcClient.sendRequest(rpcRequest, host, port);
     }
 }

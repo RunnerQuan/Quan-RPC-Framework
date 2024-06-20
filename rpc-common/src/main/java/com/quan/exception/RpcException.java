@@ -1,10 +1,9 @@
-package com.quan.RpcException;
+package com.quan.exception;
 
 import com.quan.enumeration.RpcError;
 
 /**
  * RPC调用异常
- * RpcException
  * @author Quan
  */
 public class RpcException extends RuntimeException {

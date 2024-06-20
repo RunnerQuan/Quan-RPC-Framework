@@ -1,16 +1,19 @@
 package com.quan.client;
 
-import com.quan.RpcException.RpcException;
+import com.quan.exception.RpcException;
 import com.quan.entity.RpcRequest;
 import com.quan.entity.RpcResponse;
 import com.quan.enumeration.ResponseCode;
 import com.quan.enumeration.RpcError;
+import com.quan.serializer.CommonSerializer;
+import com.quan.util.ObjectReader;
+import com.quan.util.ObjectWriter;
+import com.quan.util.RpcMessageChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
-import java.util.logging.Logger;
 
 /**
  * RPC 客户端类（远程方法调用的消费者）
@@ -20,34 +23,56 @@ import java.util.logging.Logger;
 public class RpcClient {
 
     // 日志记录
-    private static final Logger logger = Logger.getLogger(RpcClient.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
+    // 服务端主机地址
+    private final String host;
+    // 服务端端口
+    private final int port;
+
+    // 序列化器
+    private CommonSerializer serializer;
+
+    // 构造函数
+    public RpcClient(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    // 设置序列化器
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer = serializer;
+    }
 
     /**
      * 发送请求到服务端并获取结果
      * @param rpcRequest 请求对象
-     * @param host 服务端主机地址
-     * @param port 服务端端口
      * @return 服务端返回的结果
      */
-    public Object sendRequest(RpcRequest rpcRequest,  String host, int port) {
-        try (Socket socket = new Socket(host, port)){
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            objectOutputStream.writeObject(rpcRequest);
-            objectOutputStream.flush();
-            RpcResponse rpcResponse = (RpcResponse) objectInputStream.readObject();
+    public Object sendRequest(RpcRequest rpcRequest) {
+        if(serializer == null) {
+            logger.error("序列化器未设置！");
+            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
+        }
+        try (Socket socket = new Socket(host, port)) {
+            OutputStream outputStream = socket.getOutputStream();
+            InputStream inputStream = socket.getInputStream();
+            ObjectWriter.writeObject(outputStream, rpcRequest, serializer);
+            Object obj = ObjectReader.readObject(inputStream);
+            RpcResponse rpcResponse = (RpcResponse) obj;
             if(rpcResponse == null) {
-                logger.severe("服务调用失败，service：" + rpcRequest.getInterfaceName());
+                logger.error("服务调用失败，service：{}", rpcRequest.getInterfaceName());
                 throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, " service:" + rpcRequest.getInterfaceName());
             }
             if(rpcResponse.getStatusCode() == null || rpcResponse.getStatusCode() != ResponseCode.SUCCESS.getCode()) {
-                logger.severe("服务调用失败，service：" + rpcRequest.getInterfaceName());
+                logger.error("服务调用失败，service：{}，response：{}", rpcRequest.getInterfaceName(), rpcResponse);
                 throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, " service:" + rpcRequest.getInterfaceName());
             }
+            // 检查响应与请求是否匹配
+            RpcMessageChecker.check(rpcRequest, rpcResponse);
             return rpcResponse.getData();
-        } catch (IOException | ClassNotFoundException e) {
-            logger.severe("调用时发生错误：" + e);
-            return null;
+        } catch (IOException e) {
+            logger.error("调用时发生错误：", e);
+            throw new RpcException("服务调用失败：", e);
         }
     }
 }

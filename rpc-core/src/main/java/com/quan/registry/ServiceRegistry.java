@@ -14,7 +14,7 @@ public interface ServiceRegistry {
     <T> void register(T service);
 
     /**
-     * 获取服务
+     * 根据服务名获取服务实体
      * @param serviceName 服务名称
      * @return 服务实体
      */

@@ -1,12 +1,13 @@
 package com.quan.registry;
 
-import com.quan.RpcException.RpcException;
+import com.quan.exception.RpcException;
 import com.quan.enumeration.RpcError;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 /**
  * 默认的服务注册表，保存服务端本地服务实例
@@ -14,12 +15,11 @@ import java.util.logging.Logger;
  */
 public class DefaultServiceRegistry implements ServiceRegistry {
     // 日志记录
-    private static final Logger logger = Logger.getLogger(DefaultServiceRegistry.class.getName());
-
+    private static final Logger logger = LoggerFactory.getLogger(DefaultServiceRegistry.class);
     // 服务注册表
-    private final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
+    private static final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
     // 用于存储已注册的服务
-    private final Set<String> registeredService = ConcurrentHashMap.newKeySet();
+    private static final Set<String> registeredService = ConcurrentHashMap.newKeySet();
 
     // 注册服务
     @Override
@@ -34,10 +34,10 @@ public class DefaultServiceRegistry implements ServiceRegistry {
             throw new RpcException(RpcError.SERVICE_NOT_IMPLEMENT_ANY_INTERFACE);
         }
         for(Class<?> i : interfaces) {
-            // getCanonicalName() 返回类的规范名称(包括包名和类名)
+            // getCanonicalName返回类的规范名称(包括包名和类名)
             serviceMap.put(i.getCanonicalName(), service);
         }
-        logger.info("向接口: {} 注册服务: {}" + interfaces + serviceName);
+        logger.info("向接口: {} 注册服务: {}", interfaces, serviceName);
     }
 
     // 获取服务

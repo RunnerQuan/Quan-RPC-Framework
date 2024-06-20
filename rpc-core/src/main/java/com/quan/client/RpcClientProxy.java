@@ -1,29 +1,26 @@
 package com.quan.client;
 
 import com.quan.entity.RpcRequest;
+import com.quan.entity.RpcResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.logging.Logger;
+import java.util.UUID;
 
 /**
  * RPC 客户端动态代理
  * @author Quan
  */
 public class RpcClientProxy implements InvocationHandler {
-    private static final Logger logger = Logger.getLogger(RpcClientProxy.class.getName());
-    private String host;
-    private int port;
+    private static final Logger logger = LoggerFactory.getLogger(RpcClientProxy.class);
+    private final RpcClient client;
 
-    /**
-     * 构造函数
-     * @param host
-     * @param port
-     */
-    public RpcClientProxy(String host, int port) {
-        this.host = host;
-        this.port = port;
+    // 构造函数
+    public RpcClientProxy(RpcClient client) {
+        this.client = client;
     }
 
     /**
@@ -46,15 +43,11 @@ public class RpcClientProxy implements InvocationHandler {
      * @throws Throwable
      */
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        logger.info("调用方法: " + method.getName());
-        RpcRequest rpcRequest = RpcRequest.builder()
-                .interfaceName(method.getDeclaringClass().getName())
-                .methodName(method.getName())
-                .parameters(args)
-                .paramTypes(method.getParameterTypes())
-                .build();
-        RpcClient rpcClient = new RpcClient();
-        return rpcClient.sendRequest(rpcRequest, host, port);
+    public Object invoke(Object proxy, Method method, Object[] args) {
+        logger.info("调用方法: {}#{}", method.getDeclaringClass().getName(), method.getName());
+        // 随机生成一个请求 ID
+        RpcRequest rpcRequest = new RpcRequest(UUID.randomUUID().toString(), method.getDeclaringClass().getName(),
+                method.getName(), args, method.getParameterTypes());
+        return client.sendRequest(rpcRequest);
     }
 }

@@ -1,15 +1,15 @@
 package com.quan;
 
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HelloServiceImplementation implements HelloService {
-    // 用于记录与 com.quan.HelloServiceImplementation 相关的日志
-    private static final Logger logger = Logger.getLogger(HelloServiceImplementation.class.getName());
+    // 日志记录
+    private static final Logger logger = LoggerFactory.getLogger(HelloServiceImplementation.class);
 
     @Override
     public String hello(HelloObject object) {
-        logger.info("接收到：" + object.getMessage());
-        return "这是调用的返回值， id=" + object.getId();
+        logger.info("接收到：{}", object.getMessage());
+        return "这是调用的返回值， id = " + object.getId();
     }
 }

@@ -1,8 +1,12 @@
 package com.quan.server;
 
+import com.quan.enumeration.RpcError;
+import com.quan.exception.RpcException;
 import com.quan.registry.ServiceRegistry;
-
-import java.util.logging.Logger;
+import com.quan.serializer.CommonSerializer;
+import com.quan.util.ThreadPoolFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,38 +20,40 @@ import java.util.concurrent.*;
  */
 public class RpcServer {
     // 用于记录与 RpcServer 相关的日志
-    private static final Logger logger = Logger.getLogger(RpcServer.class.getName());
-
-
-    private static final int CORE_POOL_SIZE = 5; // 核心线程数5
-    private static final int MAXIMUM_POOL_SIZE = 50; // 最大线程数50
-    private static final int KEEP_ALIVE_TIME = 60; // 线程存活时间60s
-    private static final int BLOCKING_QUEUE_CAPACITY = 100; // 阻塞队列容量100
+    private static final Logger logger = LoggerFactory.getLogger(RpcServer.class);
     private final ExecutorService threadPool; // 用于处理请求的线程池
     private RequestHandler requestHandler = new RequestHandler(); // 用于处理请求
     private final ServiceRegistry serviceRegistry; // 服务注册表
+    private CommonSerializer serializer; // 序列化器
 
     // 构造函数
     public RpcServer(ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
-        BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(BLOCKING_QUEUE_CAPACITY); // 用于存放任务的阻塞队列
-        ThreadFactory threadFactory = Executors.defaultThreadFactory(); // 创建线程的工厂
-        // 创建线程池
-        threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME,
-                TimeUnit.SECONDS, new ArrayBlockingQueue<>(BLOCKING_QUEUE_CAPACITY),
-                new ThreadPoolExecutor.CallerRunsPolicy());
+        // 创建一个线程池
+        threadPool = ThreadPoolFactory.createDefaultThreadPool("rpc-server");
     }
+
     // 用于注册服务
     public void start(int port) {
+        if(serializer == null) {
+            logger.error("序列化器未设置！");
+            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
+        }
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            logger.info("服务器正在启动...");
+            logger.info("服务器正在启动......");
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
-                logger.info("客户端连接！ IP为：" + socket.getInetAddress() + " 端口号为:" + socket.getPort());
-                threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry));
+                logger.info("客户端连接：IP为 {}，端口号为 {}", socket.getInetAddress(), socket.getPort());
+                threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry, serializer));
             }
+            threadPool.shutdown(); // 关闭线程池
         } catch (IOException e) {
-            logger.severe("服务器启动时有错误发生：" + e);
+            logger.error("服务器启动时有错误发生：", e);
         }
+    }
+
+    // 设置序列化器
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

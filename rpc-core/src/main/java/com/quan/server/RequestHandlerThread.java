@@ -25,15 +25,13 @@ public class RequestHandlerThread implements Runnable {
     private Socket socket;
     // 用于处理RpcRequest
     private RequestHandler requestHandler;
-    // 服务注册表，用于查找服务
-    private ServiceRegistry serviceRegistry;
     // 序列化器
     private CommonSerializer serializer;
 
-    public RequestHandlerThread(Socket socket, RequestHandler requestHandler, ServiceRegistry serviceRegistry, CommonSerializer serializer) {
+    // 构造函数
+    public RequestHandlerThread(Socket socket, RequestHandler requestHandler, CommonSerializer serializer) {
         this.socket = socket;
         this.requestHandler = requestHandler;
-        this.serviceRegistry = serviceRegistry;
         this.serializer = serializer;
     }
 
@@ -44,9 +42,7 @@ public class RequestHandlerThread implements Runnable {
         try (InputStream inputStream = socket.getInputStream();
              OutputStream outputStream = socket.getOutputStream()) {
             RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
-            String interfaceName = rpcRequest.getInterfaceName();
-            Object service = serviceRegistry.getService(interfaceName);
-            Object result = requestHandler.handle(rpcRequest, service);
+            Object result = requestHandler.handle(rpcRequest);
             RpcResponse<Object> response = RpcResponse.success(result, rpcRequest.getRequestID());
             ObjectWriter.writeObject(outputStream, response, serializer);
         } catch (IOException e) {

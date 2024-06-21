@@ -1,4 +1,4 @@
-package com.quan.registry;
+package com.quan.provider;
 
 import com.quan.exception.RpcException;
 import com.quan.enumeration.RpcError;
@@ -10,12 +10,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 默认的服务注册表，保存服务端本地服务实例
+ * 默认的服务注册表，保存服务端本地服务
  * @author Quan
  */
-public class DefaultServiceRegistry implements ServiceRegistry {
+public class ServiceProviderImplementation implements ServiceProvider {
     // 日志记录
-    private static final Logger logger = LoggerFactory.getLogger(DefaultServiceRegistry.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceProviderImplementation.class);
     // 服务注册表
     private static final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
     // 用于存储已注册的服务
@@ -23,26 +23,18 @@ public class DefaultServiceRegistry implements ServiceRegistry {
 
     // 注册服务
     @Override
-    public synchronized <T> void register(T service) {
-        String serviceName = service.getClass().getName();
+    public <T> void addServiceProvider(T service, String serviceName) {
         if(registeredService.contains(serviceName)) {
             return;
         }
         registeredService.add(serviceName);
-        Class<?>[] interfaces = service.getClass().getInterfaces();
-        if(interfaces.length == 0) {
-            throw new RpcException(RpcError.SERVICE_NOT_IMPLEMENT_ANY_INTERFACE);
-        }
-        for(Class<?> i : interfaces) {
-            // getCanonicalName返回类的规范名称(包括包名和类名)
-            serviceMap.put(i.getCanonicalName(), service);
-        }
-        logger.info("向接口: {} 注册服务: {}", interfaces, serviceName);
+        serviceMap.put(serviceName, service);
+        logger.info("向接口: {} 注册服务: {}", service.getClass().getInterfaces(), serviceName);
     }
 
     // 获取服务
     @Override
-    public synchronized Object getService(String serviceName) {
+    public Object getServiceProvider(String serviceName) {
         Object service = serviceMap.get(serviceName);
         if(service == null) {
             throw new RpcException(RpcError.SERVICE_NO_FOUND);

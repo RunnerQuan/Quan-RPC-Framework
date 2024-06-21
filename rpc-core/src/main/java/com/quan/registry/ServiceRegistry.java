@@ -1,22 +1,24 @@
 package com.quan.registry;
 
+import java.net.InetSocketAddress;
+
 /**
- * 服务注册表通用接口
+ * 服务注册中心通用接口
  * @author Quan
  */
 public interface ServiceRegistry {
 
     /**
-     * 注册服务
-     * @param service 待注册的服务实体
-     * @param <T> 服务实体类
+     * 将一个服务注册进注册表
+     * @param serviceName 服务名称
+     * @param inetSocketAddress 提供服务的地址
      */
-    <T> void register(T service);
+    void register(String serviceName, InetSocketAddress inetSocketAddress);
 
     /**
      * 根据服务名获取服务实体
      * @param serviceName 服务名称
      * @return 服务实体
      */
-    Object getService(String serviceName);
+    InetSocketAddress discoverService(String serviceName);
 }

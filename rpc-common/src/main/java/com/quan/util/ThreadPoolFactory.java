@@ -5,6 +5,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.concurrent.*;
 
+/**
+ * 创建 ThreadPool 对象的工厂类
+ * 用于创建 ThreadPool 对象
+ * @NoArgsConstructor: 生成一个无参构造方法
+ * @author Quan
+ */
 @NoArgsConstructor
 public class ThreadPoolFactory {
     /**

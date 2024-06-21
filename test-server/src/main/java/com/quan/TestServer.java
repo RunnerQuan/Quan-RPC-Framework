@@ -20,14 +20,12 @@ public class TestServer {
         HelloService helloService = new HelloServiceImplementation();
         GoodbyeService goodbyeService = new GoodbyeServiceImplementation();
 
-        // 向服务注册中心注册服务
-        ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient("127.0.0.1", 8080);
-        InetSocketAddress serviceAddress = new InetSocketAddress("127.0.0.1", 9000);
-        serviceRegistryClient.register(HelloService.class.getCanonicalName(), serviceAddress);
-        serviceRegistryClient.register(GoodbyeService.class.getCanonicalName(), serviceAddress);
+        // 注册中心的地址
+        String registryHost = "127.0.0.1";
+        int registryPort = 8080;
 
         // 创建RpcServer实例并添加服务
-        RpcServer rpcServer = new RpcServer("127.0.0.1", 9000);
+        RpcServer rpcServer = new RpcServer("127.0.0.1", 9000, registryHost, registryPort);
         rpcServer.setSerializer(new JsonSerializer());
         rpcServer.publishService(helloService, HelloService.class.getCanonicalName());
         rpcServer.publishService(goodbyeService, GoodbyeService.class.getCanonicalName());

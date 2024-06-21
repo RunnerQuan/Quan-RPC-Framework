@@ -6,6 +6,7 @@ import com.quan.provider.ServiceProvider;
 import com.quan.provider.ServiceProviderImplementation;
 import com.quan.registry.QuanServiceRegistry;
 import com.quan.registry.ServiceRegistry;
+import com.quan.registry.ServiceRegistryClient;
 import com.quan.serializer.CommonSerializer;
 import com.quan.util.ThreadPoolFactory;
 import org.slf4j.Logger;
@@ -32,14 +33,17 @@ public class RpcServer {
     private CommonSerializer serializer; // 序列化器
     private final String host; // 服务端的 IP 地址
     private final int port; // 服务端的端口号
+    private final ServiceRegistryClient serviceRegistryClient; // 服务注册中心的客户端
     // 构造函数
-    public RpcServer(String host, int port) {
+    public RpcServer(String host, int port, String registryHost, int registryPort) {
         // 创建一个线程池
         threadPool = ThreadPoolFactory.createDefaultThreadPool("rpc-server");
+
         this.serviceRegistry = new QuanServiceRegistry();
         this.serviceProvider = new ServiceProviderImplementation();
         this.host = host;
         this.port = port;
+        this.serviceRegistryClient = new ServiceRegistryClient(registryHost, registryPort);
     }
 
     // 用于注册服务
@@ -68,6 +72,12 @@ public class RpcServer {
 
     // 发布服务
     public <T> void publishService(T service, String serviceName) {
+        try {
+            serviceRegistryClient.register(serviceName, new InetSocketAddress(host, port));
+        } catch (IOException e) {
+            logger.error("注册服务时有错误发生：", e);
+            throw new RpcException(RpcError.REGISTER_SERVICE_FAILURE);
+        }
         serviceProvider.addServiceProvider(service, serviceName);
         serviceRegistry.register(serviceName, new InetSocketAddress(host, port));
     }

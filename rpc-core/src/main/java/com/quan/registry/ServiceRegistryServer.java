@@ -43,21 +43,35 @@ public class ServiceRegistryServer {
                  ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
 
                 String command = objectInputStream.readUTF();
-                if ("register".equals(command)) {
-                    String serviceName = objectInputStream.readUTF();
-                    InetSocketAddress inetSocketAddress = (InetSocketAddress) objectInputStream.readObject();
-                    serviceRegistry.register(serviceName, inetSocketAddress);
-                    objectOutputStream.writeUTF("Service registered successfully");
-                } else if ("discover".equals(command)) {
-                    String serviceName = objectInputStream.readUTF();
-                    InetSocketAddress address = serviceRegistry.discoverService(serviceName);
-                    objectOutputStream.writeObject(address);
-                } else {
-                    objectOutputStream.writeUTF("Unknown command");
+                switch (command) {
+                    case "register": {
+                        String serviceName = objectInputStream.readUTF();
+                        InetSocketAddress inetSocketAddress = (InetSocketAddress) objectInputStream.readObject();
+                        serviceRegistry.register(serviceName, inetSocketAddress);
+                        objectOutputStream.writeUTF("Service registered successfully");
+                        break;
+                    }
+                    case "discover": {
+                        String serviceName = objectInputStream.readUTF();
+                        InetSocketAddress address = serviceRegistry.discoverService(serviceName);
+                        objectOutputStream.writeObject(address);
+                        break;
+                    }
+                    case "heartbeat": {
+                        String serviceName = objectInputStream.readUTF();
+                        InetSocketAddress inetSocketAddress = (InetSocketAddress) objectInputStream.readObject();
+                        // 更新服务心跳时间
+                        ((QuanServiceRegistry) serviceRegistry).heartbeat(serviceName, inetSocketAddress);
+                        objectOutputStream.writeUTF("Heartbeat received");
+                        break;
+                    }
+                    default:
+                        objectOutputStream.writeUTF("Unknown command");
+                        break;
                 }
                 objectOutputStream.flush();
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                logger.error("调用或处理时有错误发生：", e);
             }
         }
     }

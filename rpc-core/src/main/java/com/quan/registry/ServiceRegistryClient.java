@@ -63,4 +63,22 @@ public class ServiceRegistryClient {
             return null;
         }
     }
+
+    // 发送心跳包
+    public void sendHeartbeat(String serviceName, InetSocketAddress inetSocketAddress) throws IOException {
+        try (Socket socket = new Socket(host, port);
+             OutputStream outputStream = socket.getOutputStream();
+             InputStream inputStream = socket.getInputStream();
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+
+            objectOutputStream.writeUTF("heartbeat");
+            objectOutputStream.writeUTF(serviceName);
+            objectOutputStream.writeObject(inetSocketAddress);
+            objectOutputStream.flush();
+
+            String response = objectInputStream.readUTF();
+//            logger.info("心跳包发送成功，响应：{}", response);
+        }
+    }
 }

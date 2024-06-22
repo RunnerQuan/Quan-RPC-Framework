@@ -1,6 +1,7 @@
 package com.quan.registry;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 服务注册中心通用接口
@@ -21,4 +22,10 @@ public interface ServiceRegistry {
      * @return 服务实体
      */
     InetSocketAddress discoverService(String serviceName);
+
+    /**
+     * 获取服务列表
+     * @return 服务列表
+     */
+    ConcurrentHashMap<String, InetSocketAddress> getServiceMap();
 }

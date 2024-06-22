@@ -1,13 +1,8 @@
 package com.quan;
 
-import com.quan.provider.ServiceProviderImplementation;
-import com.quan.registry.ServiceRegistry;
-import com.quan.registry.ServiceRegistryClient;
+
 import com.quan.serializer.JsonSerializer;
 import com.quan.server.RpcServer;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
 
 /**
  * 测试用服务提供方（服务端）
@@ -15,7 +10,7 @@ import java.net.InetSocketAddress;
  * @author Quan
  */
 public class TestServer {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) {
         // 创建服务
         HelloService helloService = new HelloServiceImplementation();
         GoodbyeService goodbyeService = new GoodbyeServiceImplementation();

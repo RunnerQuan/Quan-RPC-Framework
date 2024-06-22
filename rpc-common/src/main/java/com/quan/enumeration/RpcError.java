@@ -23,6 +23,7 @@ public enum RpcError {
     RESPONSE_NOT_MATCH("响应请求号与请求号不匹配"),
     FAILED_TO_CONNECT_TO_SERVICE_REGISTRY("连接注册中心失败"),
     REGISTER_SERVICE_FAILURE("注册服务失败"),
-    SERIALIZER_NOT_FOUND("未知的序列化器");
+    SERIALIZER_NOT_FOUND("未知的序列化器"),
+    HEARTBEAT_FAILURE("发送心跳失败");
     private final String message; // 错误信息
 }

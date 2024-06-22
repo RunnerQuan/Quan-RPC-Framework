@@ -34,6 +34,9 @@ public class RpcServer {
     private final String host; // 服务端的 IP 地址
     private final int port; // 服务端的端口号
     private final ServiceRegistryClient serviceRegistryClient; // 服务注册中心的客户端
+    // 定时任务调度器；用于发送心跳包（保持连接）的线程池（定时任务线程池）
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     // 构造函数
     public RpcServer(String host, int port, String registryHost, int registryPort) {
         // 创建一个线程池
@@ -54,6 +57,7 @@ public class RpcServer {
         }
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("服务器已启动！");
+            startHeartbeat(); // 启动心跳线程
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
                 logger.info("客户端连接：IP为 {}，端口号为 {}", socket.getInetAddress(), socket.getPort());
@@ -63,6 +67,19 @@ public class RpcServer {
         } catch (IOException e) {
             logger.error("服务器启动时有错误发生：", e);
         }
+    }
+
+    // 启动心跳线程
+    private void startHeartbeat() {
+        scheduler.scheduleAtFixedRate(() -> serviceRegistry.getServiceMap().forEach((serviceName, serviceAddress) -> {
+            try {
+                serviceRegistryClient.sendHeartbeat(serviceName, serviceAddress);
+//                    logger.info("心跳包发送成功，服务：{}", serviceName);
+            } catch (IOException e) {
+                throw new RpcException(RpcError.HEARTBEAT_FAILURE);
+//                    logger.error("心跳包发送失败，服务：{}", serviceName, e);
+            }
+        }), 0, 5, TimeUnit.SECONDS);
     }
 
     // 设置序列化器

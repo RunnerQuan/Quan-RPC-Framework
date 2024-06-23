@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.sql.SQLOutput;
 
 /**
  * 服务注册中心的客户端类
@@ -13,7 +14,7 @@ import java.net.Socket;
  * @author Quan
  */
 public class ServiceRegistryClient {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceRegistryClient.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceRegistryClient.class);
     // 注册中心的地址
     private final String host;
     // 注册中心的端口
@@ -69,6 +70,7 @@ public class ServiceRegistryClient {
         try (Socket socket = new Socket(host, port);
              OutputStream outputStream = socket.getOutputStream();
              InputStream inputStream = socket.getInputStream();
+
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
              ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
 

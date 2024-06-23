@@ -5,6 +5,7 @@ import com.quan.enumeration.RpcError;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,11 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ServiceProviderImplementation implements ServiceProvider {
     // 日志记录
-    private static final Logger logger = LoggerFactory.getLogger(ServiceProviderImplementation.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceProviderImplementation.class);
     // 服务注册表
-    private static final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Object> serviceMap = new ConcurrentHashMap<>();
     // 用于存储已注册的服务
-    private static final Set<String> registeredService = ConcurrentHashMap.newKeySet();
+    private final Set<String> registeredService = ConcurrentHashMap.newKeySet();
 
     // 注册服务
     @Override
@@ -32,6 +33,14 @@ public class ServiceProviderImplementation implements ServiceProvider {
         logger.info("向接口: {} 注册服务: {}", service.getClass().getInterfaces(), serviceName);
     }
 
+    // 移除服务
+    @Override
+    public void removeServiceProvider(String serviceName) {
+        registeredService.remove(serviceName);
+        serviceMap.remove(serviceName);
+        logger.info("从接口: {} 注销服务: {}", serviceName);
+    }
+
     // 获取服务
     @Override
     public Object getServiceProvider(String serviceName) {
@@ -40,5 +49,10 @@ public class ServiceProviderImplementation implements ServiceProvider {
             throw new RpcException(RpcError.SERVICE_NO_FOUND);
         }
         return service;
+    }
+
+    @Override
+    public Set<String> getAllServiceNames() {
+        return Collections.unmodifiableSet(registeredService);
     }
 }

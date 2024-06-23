@@ -15,7 +15,7 @@ import java.util.UUID;
  * @author Quan
  */
 public class RpcClientProxy implements InvocationHandler {
-    private static final Logger logger = LoggerFactory.getLogger(RpcClientProxy.class);
+    private final Logger logger = LoggerFactory.getLogger(RpcClientProxy.class);
     private final RpcClient client;
 
     // 构造函数

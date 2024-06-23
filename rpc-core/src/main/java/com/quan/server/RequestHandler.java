@@ -19,10 +19,11 @@ public class RequestHandler {
     // 用于记录与 RequestHandler 相关的日志
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     // 服务提供方
-    private static final ServiceProvider serviceProvider;
+    private final ServiceProvider serviceProvider;
 
-    static {
-        serviceProvider = new ServiceProviderImplementation();
+    // 构造函数
+    public RequestHandler(ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
     }
 
     // 处理请求

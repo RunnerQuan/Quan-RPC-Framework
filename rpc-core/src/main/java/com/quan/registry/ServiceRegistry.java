@@ -1,6 +1,7 @@
 package com.quan.registry;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,8 +25,16 @@ public interface ServiceRegistry {
     InetSocketAddress discoverService(String serviceName);
 
     /**
+     * 获取心跳列表
+     * @return 心跳列表
+     */
+    ConcurrentHashMap<String, Long> getLastHeartbeatMap();
+
+    /**
      * 获取服务列表
      * @return 服务列表
      */
-    ConcurrentHashMap<String, InetSocketAddress> getServiceMap();
+    ConcurrentHashMap<String, List<InetSocketAddress>> getServiceMap();
+
+
 }

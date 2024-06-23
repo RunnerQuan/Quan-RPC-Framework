@@ -23,11 +23,11 @@ import java.net.Socket;
 public class RpcClient {
 
     // 日志记录
-    private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
+    private final Logger logger = LoggerFactory.getLogger(RpcClient.class);
     // 服务端主机地址
-    private final String host;
+    private String host;
     // 服务端端口
-    private final int port;
+    private int port;
 
     // 序列化器
     private CommonSerializer serializer;

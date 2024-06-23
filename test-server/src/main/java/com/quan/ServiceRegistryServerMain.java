@@ -1,7 +1,5 @@
 package com.quan;
 
-import com.quan.registry.QuanServiceRegistry;
-import com.quan.registry.ServiceRegistry;
 import com.quan.registry.ServiceRegistryServer;
 
 import java.io.IOException;
@@ -13,8 +11,7 @@ import java.io.IOException;
  */
 public class ServiceRegistryServerMain {
     public static void main(String[] args) throws IOException {
-        ServiceRegistry serviceRegistry = new QuanServiceRegistry();
-        ServiceRegistryServer serviceRegistryServer = new ServiceRegistryServer(serviceRegistry);
-        serviceRegistryServer.start(8080); // 启动注册中心服务器8080
+        ServiceRegistryServer serviceRegistryServer = new ServiceRegistryServer();
+        serviceRegistryServer.start(8848); // 启动注册中心服务器8080
     }
 }

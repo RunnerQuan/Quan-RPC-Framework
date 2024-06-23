@@ -17,7 +17,7 @@ import java.net.InetSocketAddress;
 public class TestClient {
     public static void main(String[] args) throws IOException {
         // 从服务注册中心查找服务地址  127.0.0.1 本地回环地址
-        ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient("127.0.0.1", 8080);
+        ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient("127.0.0.1", 8848);
         InetSocketAddress serviceAddress_hello = serviceRegistryClient.discover(HelloService.class.getCanonicalName());
         InetSocketAddress serviceAddress_goodbye = serviceRegistryClient.discover(GoodbyeService.class.getCanonicalName());
 

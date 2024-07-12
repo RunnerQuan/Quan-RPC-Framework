@@ -8,14 +8,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * 从输出流中读取字节并序列化为对象
+ * 将Java对象序列化并写入输出流
  * @author Quan
  */
 public class ObjectWriter {
     // 魔数：用于验证协议包的合法性
     private static final int MAGIC_NUMBER = 0xCAFEBABE;
 
-    // 从输出流中读取字节并序列化为对象
+    // 将Java对象序列化并写入输出流
     public static void writeObject(OutputStream outputStream, Object object, CommonSerializer serializer) throws IOException {
         outputStream.write(intToBytes(MAGIC_NUMBER));
         if(object instanceof RpcRequest) {

@@ -9,8 +9,8 @@ import java.net.Socket;
 import java.sql.SQLOutput;
 
 /**
- * 服务注册中心的客户端类
- * 用于向注册中心注册服务和从注册中心发现服务
+ * 服务注册中心的客户端
+ * 用于向服务注册中心服务端注册服务和从注册中心发现服务
  * @author Quan
  */
 public class ServiceRegistryClient {

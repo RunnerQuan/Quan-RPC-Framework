@@ -11,6 +11,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum RpcError {
+    IO_TIMEOUT("读写数据超时"),
+    IO_ERROR("读写数据错误"),
+    SOCKET_TIMEOUT("连接超时"),
+    SOCKET_ERROR("Socket连接错误"),
     SERVICE_INVOCATION_FAILURE("服务调用失败"),
     SERVICE_NO_FOUND("未找到服务"),
     SERVICE_NOT_IMPLEMENT_ANY_INTERFACE("注册的服务未实现接口"),

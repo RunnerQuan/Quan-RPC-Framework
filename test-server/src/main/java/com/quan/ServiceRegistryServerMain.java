@@ -11,7 +11,8 @@ import java.io.IOException;
  */
 public class ServiceRegistryServerMain {
     public static void main(String[] args) throws IOException {
+        // 注册中心的IP和端口号直接固定为 192.168.1.10:12350
         ServiceRegistryServer serviceRegistryServer = new ServiceRegistryServer();
-        serviceRegistryServer.start(8848); // 启动注册中心服务器8080
+        serviceRegistryServer.start(12350); // 启动注册中心服务器12350
     }
 }

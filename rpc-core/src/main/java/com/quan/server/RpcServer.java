@@ -17,6 +17,7 @@ import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -37,6 +38,7 @@ public class RpcServer {
     private final String host; // 服务端的 IP 地址
     private final int port; // 服务端的端口号
     private final ServiceRegistryClient serviceRegistryClient; // 服务注册中心的客户端
+    private final String serverName;
 
     // 定时任务调度器；用于发送心跳包（保持连接）的线程池（定时任务线程池）
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -51,6 +53,7 @@ public class RpcServer {
         this.host = host;
         this.port = port;
         this.serviceRegistryClient = new ServiceRegistryClient(registryHost, registryPort);
+        this.serverName = serverName;
     }
 
     // 用于注册服务
@@ -60,18 +63,43 @@ public class RpcServer {
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            logger.info("服务端已启动！");
+//            logger.info("服务端已启动！");
             startHeartbeat(); // 启动心跳线程
             startServiceDownListener(); // 启动服务失活通知监听线程
+
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
-                logger.info("客户端连接：{}:{}", socket.getInetAddress(), socket.getPort());
+//                logger.info("客户端连接：{}:{}", socket.getInetAddress(), socket.getPort());
                 threadPool.execute(new RequestHandlerThread(socket, requestHandler, serializer));
             }
-            threadPool.shutdown(); // 关闭线程池
         } catch (IOException e) {
             logger.error("服务器启动时有错误发生：", e);
         }
+    }
+
+    // 优雅地关闭服务器
+    public void shutdown() {
+        logger.info("正在关闭 RPC 服务器 " + serverName + "......");
+        // 关闭线程池
+        threadPool.shutdown();
+        try {
+            if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+                threadPool.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            threadPool.shutdownNow();
+        }
+
+        // 关闭定时任务调度器
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+        }
+        logger.info("RPC 服务器 " + serverName + " 已关闭！");
     }
 
     // 启动心跳线程
@@ -84,13 +112,22 @@ public class RpcServer {
                     try {
 //                        logger.info("发送心跳包，服务：{}，地址：{}", serviceName, address);
                         serviceRegistryClient.sendHeartbeat(serviceName, address);
-                    } catch (IOException e) {
+                    } catch (SocketTimeoutException e) {
+                        logger.error("发送心跳包超时，服务：{}", serviceName, e);
+                        // 重发心跳包
+                        try {
+                            serviceRegistryClient.sendHeartbeat(serviceName, address);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                    catch (IOException e) {
                         logger.error("心跳包发送失败，服务：{}", serviceName, e);
                         throw new RpcException(RpcError.HEARTBEAT_FAILURE);
                     }
                 }
             }
-        }, 0, 5, TimeUnit.SECONDS); // 每 3 秒发送一次心跳包
+        }, 0, 5, TimeUnit.SECONDS); // 每 5 秒发送一次心跳包
     }
 
     // 启动服务失活通知监听线程
@@ -132,7 +169,7 @@ public class RpcServer {
         }
         serviceProvider.addServiceProvider(service, serviceName);
         serviceRegistry.register(serviceName, serviceAddress);
-        logger.info("向接口: [{}] 注册服务: {}", service.getClass().getInterfaces()[0], service.getClass().getCanonicalName());
+//        logger.info("向接口: [{}] 注册服务: {}", service.getClass().getInterfaces()[0], service.getClass().getCanonicalName());
     }
 
     // 处理注册中心通知服务失活

@@ -30,7 +30,7 @@ public class ServiceProviderImplementation implements ServiceProvider {
         }
         registeredService.add(serviceName);
         serviceMap.put(serviceName, service);
-        logger.info("向接口: {} 注册服务: {}", service.getClass().getInterfaces(), serviceName);
+//        logger.info("向接口: {} 注册服务: {}", service.getClass().getInterfaces(), serviceName);
     }
 
     // 移除服务

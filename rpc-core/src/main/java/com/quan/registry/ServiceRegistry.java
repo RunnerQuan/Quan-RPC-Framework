@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 服务注册中心通用接口
+ * 服务注册表通用接口
  * @author Quan
  */
 public interface ServiceRegistry {

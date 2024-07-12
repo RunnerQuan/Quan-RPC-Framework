@@ -9,7 +9,7 @@ public class HelloServiceImplementation implements HelloService {
 
     @Override
     public String hello(HelloObject object) {
-        logger.info("接收到：{}", object.getMessage());
+//        logger.info("接收到：{}", object.getMessage());
         return "这是调用服务 HelloService 的返回值， id = " + object.getId();
     }
 }

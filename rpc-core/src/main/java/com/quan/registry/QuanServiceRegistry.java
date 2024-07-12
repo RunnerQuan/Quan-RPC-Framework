@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class QuanServiceRegistry implements ServiceRegistry {
     private final Logger logger = LoggerFactory.getLogger(QuanServiceRegistry.class);
 
+    // 服务的名称和地址列表(键是服务名，值是提供该服务的地址列表)
     private final ConcurrentHashMap<String, List<InetSocketAddress>> serviceMap = new ConcurrentHashMap<>();
 
     // 服务的最后心跳时间(键是 Service + InetSocketAddress.toString())
@@ -36,7 +37,7 @@ public class QuanServiceRegistry implements ServiceRegistry {
         }
         serviceMap.computeIfAbsent(serviceName, k -> new ArrayList<>()).add(inetSocketAddress);
         lastHeartbeatMap.put(serviceName + inetSocketAddress.toString(), System.currentTimeMillis());
-        logger.info("服务器：{} 的服务：{} 注册进服务注册中心", inetSocketAddress, serviceName);
+//        logger.info("服务器：{} 的服务：{} 注册进服务注册中心", inetSocketAddress, serviceName);
     }
 
     // 发现服务
@@ -50,7 +51,7 @@ public class QuanServiceRegistry implements ServiceRegistry {
         // 使用随机选择策略实现负载均衡
         int randomIndex = new Random().nextInt(addresses.size());
         InetSocketAddress address = addresses.get(randomIndex); // 随机选择一个服务端
-        logger.info("发现服务：{} 的地址为：{}", serviceName, address);
+//        logger.info("发现服务：{} 的地址为：{}", serviceName, address);
         return address;
     }
 

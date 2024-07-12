@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 /**
  * 处理RpcRequest的工作线程
@@ -41,12 +42,16 @@ public class RequestHandlerThread implements Runnable {
         // 使用try-with-resources确保操作完成后socket能够正常关闭
         try (InputStream inputStream = socket.getInputStream();
              OutputStream outputStream = socket.getOutputStream()) {
+
             RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
             Object result = requestHandler.handle(rpcRequest);
             RpcResponse<Object> response = RpcResponse.success(result, rpcRequest.getRequestID());
             ObjectWriter.writeObject(outputStream, response, serializer);
+
+        } catch (SocketTimeoutException e) {
+            logger.error("读写数据超时：", e);
         } catch (IOException e) {
-            logger.error("调用或发送时有错误发生：", e);
+            logger.error("处理请求时有错误发生：", e);
         }
     }
 }

@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 注册中心服务器
+ * 服务注册中心服务端
  * @author Quan
  */
 public class ServiceRegistryServer {
@@ -35,7 +35,7 @@ public class ServiceRegistryServer {
         // 启动定期检查服务状态的任务
         startHeartbeatCheck();
         ServerSocket serverSocket = new ServerSocket(port);
-        logger.info("注册中心服务端已启动！端口号为: {}", port);
+//        logger.info("注册中心服务端已启动！端口号为: {}", port);
         while(true) {
             Socket socket = serverSocket.accept();
             new Thread(new ServiceRegistryServerHandler(socket)).start();
@@ -56,7 +56,8 @@ public class ServiceRegistryServer {
             long lastHeartbeatTime = entry.getValue();
             if (currentTime - lastHeartbeatTime > SERVICE_TIMEOUT) {
                 String serviceName = key.substring(0, key.indexOf("/"));
-                InetSocketAddress inetSocketAddress = new InetSocketAddress(key.substring(key.indexOf("/") + 1, key.indexOf(":")), Integer.parseInt(key.substring(key.indexOf(":") + 1)));
+                InetSocketAddress inetSocketAddress = new InetSocketAddress(key.substring(key.indexOf("/") + 1,
+                        key.indexOf(":")), Integer.parseInt(key.substring(key.indexOf(":") + 1)));
 
                 // 通知所有服务端删除失活服务（要先通知服务端删除失活服务再更新注册中心的注册表）
                 notifyServiceDown(serviceName, inetSocketAddress);

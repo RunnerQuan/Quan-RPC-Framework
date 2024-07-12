@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RpcRequest implements Serializable {
-    // 请求号
+    // 请求号，用于区分不同的请求
     private String requestID;
 
     // 待调用接口名称

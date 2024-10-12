@@ -44,8 +44,10 @@ test-server ------ 服务端测试代码
 
 客户端：java -jar client.jar -i 192.168.1.16 -p 12375
 
-![image-20240712222826115](assets/image-20240712222826115.png)
+![image-20240712222826115](docs/Development%20Documentation.assets/image-20240712222826115.png)
 
 
 
 ## Quan-RPC整体架构图
+
+![image-20240712222826115](docs/Development%20Documentation.assets/image-20240712222839726.png)

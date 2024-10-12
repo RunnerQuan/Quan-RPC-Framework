@@ -47,14 +47,14 @@ test-server ------ 服务端测试代码
 
 客户端：java -jar client.jar -i 192.168.1.16 -p 12375
 
-![image-20240712222826115](Development Documentation.assets/image-20240712222826115.png)
+![image-20240712222826115](Development%20Documentation.assets/image-20240712222826115.png)
 
 
 
 Quan-RPC整体架构图
 ------------------
 
-![image-20240712222839726](Development Documentation.assets/image-20240712222839726.png)
+![image-20240712222839726](Development%20Documentation.assets/image-20240712222839726.png)
 
 消息格式定义，消息序列化和反序列化
 ----------------------------------
@@ -63,7 +63,7 @@ Quan-RPC整体架构图
 
 Quan-RPC框架在客户端和服务器之间传递数据时，采用自定义的消息格式（防止粘包）。该消息格式通过在对象的字节序列前添加一些特定的元数据，确保数据的完整性和可读性。以下是详细的消息格式定义：
 
-![image-20240712222852778](Development Documentation.assets/image-20240712222852778.png)
+![image-20240712222852778](Development%20Documentation.assets/image-20240712222852778.png)
 
 每个消息包都包含以下几个部分：
 
@@ -72,7 +72,7 @@ Quan-RPC框架在客户端和服务器之间传递数据时，采用自定义的
 
 值设置为0xCAFEBABE
 
-![image-20240712222858937](Development Documentation.assets/image-20240712222858937.png)
+![image-20240712222858937](Development%20Documentation.assets/image-20240712222858937.png)
 
 2.  **包类型 (Package Type)：**
 
@@ -88,7 +88,7 @@ Quan-RPC框架在客户端和服务器之间传递数据时，采用自定义的
 
 值为1（目前只支持Json序列化，后续可拓展支持多重序列化器）。
 
-![image-20240712222922711](Development Documentation.assets/image-20240712222922711.png)
+![image-20240712222922711](Development%20Documentation.assets/image-20240712222922711.png)
 
 4.  **数据长度 (Data Length)：**
 
@@ -102,11 +102,11 @@ Quan-RPC框架在客户端和服务器之间传递数据时，采用自定义的
 
 RpcRequest类的属性如下：
 
-![image-20240712222929677](Development Documentation.assets/image-20240712222929677.png)
+![image-20240712222929677](Development%20Documentation.assets/image-20240712222929677.png)
 
 RpcResponse类的属性如下（省去操作部分的展示）：
 
-![image-20240712222934039](Development Documentation.assets/image-20240712222934039.png)
+![image-20240712222934039](Development%20Documentation.assets/image-20240712222934039.png)
 
 ### 消息序列化和反序列化
 
@@ -118,26 +118,26 @@ RpcResponse类的属性如下（省去操作部分的展示）：
 
 > JsonSerializer类提供的serialize方法：
 >
-> ![image-20240712222941330](Development Documentation.assets/image-20240712222941330.png)
+> ![image-20240712222941330](Development%20Documentation.assets/image-20240712222941330.png)
 >
 > ObjectWriter类提供的writeObject方法：
 >
 > 其主要作用是将 Java
 > 对象序列化并通过输出流发送到网络的另一端。在序列化过程中，该类会在对象字节数据前添加魔数、包类型、序列化器代码和数据长度等元数据，以确保接收方能够正确地解析和反序列化数据。
 >
-> ![image-20240712222951164](Development Documentation.assets/image-20240712222951164.png)
+> ![image-20240712222951164](Development%20Documentation.assets/image-20240712222951164.png)
 
 2.  **消息反序列化**
 
 > JsonSerializer类提供的deserialize方法：
 >
-> ![image-20240712222958958](Development Documentation.assets/image-20240712222958958.png)
+> ![image-20240712222958958](Development%20Documentation.assets/image-20240712222958958.png)
 >
 > ObjectReader类提供的readObject方法：
 >
-> ![image-20240712223011475](Development Documentation.assets/image-20240712223011475.png)
+> ![image-20240712223011475](Development%20Documentation.assets/image-20240712223011475.png)
 >
-> ![image-20240712223016648](Development Documentation.assets/image-20240712223016648.png)
+> ![image-20240712223016648](Development%20Documentation.assets/image-20240712223016648.png)
 >
 > 其主要作用是从输入流中读取字节数据，并根据自定义的消息格式将其反序列化为
 > Java
@@ -156,9 +156,9 @@ QuanServiceRegistry服务注册表类中有两个ConcurrentHashMap，用于存�
 
 服务注册中心客户端相当于是提供服务的服务端和服务注册中心服务端（内有全局服务注册表）通信的媒介。
 
-![image-20240712223023287](Development Documentation.assets/image-20240712223023287.png)
+![image-20240712223023287](Development%20Documentation.assets/image-20240712223023287.png)
 
-![image-20240712223026917](Development Documentation.assets/image-20240712223026917.png)
+![image-20240712223026917](Development%20Documentation.assets/image-20240712223026917.png)
 
 ### 服务注册的步骤
 
@@ -194,7 +194,7 @@ b.  ServiceRegistryClient向ServiceRegistryServer发送注册服务的消息，�
 
 服务注册表类QuanServiceRegistry：
 
-![image-20240712223113667](Development Documentation.assets/image-20240712223113667.png)
+![image-20240712223113667](Development%20Documentation.assets/image-20240712223113667.png)
 
 1\. **ConcurrentHashMap**\<String, List\<InetSocketAddress\>\>
 **serviceMap**：用于存储每个服务名对应的多个服务地址。
@@ -218,7 +218,7 @@ b.  ServiceRegistryClient向ServiceRegistryServer发送注册服务的消息，�
 
 服务端通过调用RpcServer类里的publishService发布服务方法（在前文注册服务步骤里的第二步有图示）即可实现注册服务的功能，以下是服务端测试代码注册服务的例子：
 
-![image-20240712223120854](Development Documentation.assets/image-20240712223120854.png)
+![image-20240712223120854](Development%20Documentation.assets/image-20240712223120854.png)
 
 服务发现
 --------
@@ -229,25 +229,25 @@ b.  ServiceRegistryClient向ServiceRegistryServer发送注册服务的消息，�
 
 客户端通过ServiceRegistryClient类向服务注册中心发送服务发现请求；
 
-![image-20240712223126763](Development Documentation.assets/image-20240712223126763.png)
+![image-20240712223126763](Development%20Documentation.assets/image-20240712223126763.png)
 
 ServiceRegistryClient类的discover方法实现如下：
 
 服务注册中心客户端向服务注册中心服务端发送服务发现请求，然后等待服务注册中心服务端的回复，并将回复的消息（服务提供者的网络信息）反序列化为Java对象然后返回给客户端。
 
-![image-20240712223132010](Development Documentation.assets/image-20240712223132010.png)
+![image-20240712223132010](Development%20Documentation.assets/image-20240712223132010.png)
 
 2\. 服务注册中心服务端接受请求并处理：
 
 以下截取了ServiceRegistryServer类中的ServiceRegistryServerHandler内部类处理ServiceRegistryClient的服务发现请求的代码：
 
-![image-20240712223137494](Development Documentation.assets/image-20240712223137494.png)
+![image-20240712223137494](Development%20Documentation.assets/image-20240712223137494.png)
 
 discoverService方法的实现如下：
 
 在全局服务注册表中查询对应服务名称的所有服务提供者的网络地址，然后在符合条件的所有网络地址中随机选择一个返回给服务注册中心客户端，然后服务注册中心客户端再将其传递给客户端。因此，在服务注册中心服务端上，我们通过使用随机选择策略实现了负载均衡。
 
-![image-20240712223143161](Development Documentation.assets/image-20240712223143161.png)
+![image-20240712223143161](Development%20Documentation.assets/image-20240712223143161.png)
 
 ### 服务发现的接口
 
@@ -284,12 +284,12 @@ List\<InetSocketAddress\>\>来存储服务名称和服务地址列表。
 1\.
 RpcRequest类是服务调用的输入数据结构，表示客户端发起的远端调用请求，包含了请求号、调用接口的信息、方法名称、参数和参数类型。
 
-![image-20240712223150863](Development Documentation.assets/image-20240712223150863.png)
+![image-20240712223150863](Development%20Documentation.assets/image-20240712223150863.png)
 
 2\.
 RpcResponse类是服务调用的输出数据结构，表示服务端处理请求后返回的响应结果，包含了响应状态码、响应消息和实际的数据结果。
 
-![image-20240712223202826](Development Documentation.assets/image-20240712223202826.png)
+![image-20240712223202826](Development%20Documentation.assets/image-20240712223202826.png)
 
 ### 请求消息和响应结果的组织方式
 
@@ -321,7 +321,7 @@ RpcResponse类是服务调用的输出数据结构，表示服务端处理请求
 
 以下是RpcClientProxy类的实现
 
-![image-20240712223210344](Development Documentation.assets/image-20240712223210344.png)
+![image-20240712223210344](Development%20Documentation.assets/image-20240712223210344.png)
 
 服务注册中心（加分项）
 ----------------------
@@ -336,23 +336,23 @@ Quan-RPC框架下服务的注册是非永久的，而是通过心跳检测来实
 
 **·心跳检测：**
 
-![image-20240712223215969](Development Documentation.assets/image-20240712223215969.png)
+![image-20240712223215969](Development%20Documentation.assets/image-20240712223215969.png)
 
 ServiceRegistryServer类中有一个定时任务，定期检查每个服务的心跳时间。如果当前时间与最后心跳时间的差值超过了SERVICE\_TIMEOUT，则认为该服务失活，并将其从服务注册中心移除。
 
-![image-20240712223221037](Development Documentation.assets/image-20240712223221037.png)
+![image-20240712223221037](Development%20Documentation.assets/image-20240712223221037.png)
 
 **·发送心跳包**
 
 RpcServer类中包含一个定时任务，定期向服务注册中心发送心跳包，更新服务的最后心跳时间。
 
-![image-20240712223225917](Development Documentation.assets/image-20240712223225917.png)
+![image-20240712223225917](Development%20Documentation.assets/image-20240712223225917.png)
 
 **·接受心跳包并更新心跳时间**
 
 在ServiceRegistryServer类中，接收到心跳包后，调用QuanServiceRegistry类的heartbeat方法，更新服务的最后心跳时间。
 
-![image-20240712223230975](Development Documentation.assets/image-20240712223230975.png)
+![image-20240712223230975](Development%20Documentation.assets/image-20240712223230975.png)
 
 **·更新心跳时间**
 
@@ -371,19 +371,19 @@ Quan-RPC框架通过创建新的线程来处理每个客户端的请求，实现
 
 > ·在RpcServer类中，每当有一个新的每当有一个新的客户端连接请求到达时，服务端会创建RequestHandlerThread线程（处理RpcRequest的工作线程）来处理该请求。
 >
-> ![image-20240712223239256](Development Documentation.assets/image-20240712223239256.png)
+> ![image-20240712223239256](Development%20Documentation.assets/image-20240712223239256.png)
 >
 > ·在ServiceRegistryServer类中，每当有一个新的服务注册中心客户端连接请求到达时，服务注册中心服务端会创建一个新的线程来处理该请求。
 >
-> ![image-20240712223245033](Development Documentation.assets/image-20240712223245033.png)
+> ![image-20240712223245033](Development%20Documentation.assets/image-20240712223245033.png)
 
 **2. 使用线程池**
 
 > ·在RpcServer类中，使用了线程池来处理并发请求。线程池通过ThreadPoolFactory创建，并在服务器启动时初始化。
 
-![image-20240712223258977](Development Documentation.assets/image-20240712223258977.png)
+![image-20240712223258977](Development%20Documentation.assets/image-20240712223258977.png)
 
-![image-20240712223302682](Development Documentation.assets/image-20240712223302682.png)
+![image-20240712223302682](Development%20Documentation.assets/image-20240712223302682.png)
 
 在当前的Quan-RPC框架中，并没有使用IO多路复用技术，而是采用了比较简单直接的多线程和线程池方式来实现并发处理，这是因为该方式较为简单，易于维护和调试，对于中小规模的并发请求能提供足够的性能和吞吐量。
 
@@ -432,9 +432,9 @@ ocketTimeoutException异常
 
 具体代码如下：
 
-![image-20240712223312400](Development Documentation.assets/image-20240712223312400.png)
+![image-20240712223312400](Development%20Documentation.assets/image-20240712223312400.png)
 
-![image-20240712223316690](Development Documentation.assets/image-20240712223316690.png)
+![image-20240712223316690](Development%20Documentation.assets/image-20240712223316690.png)
 
 ### 服务端处理异常/超时
 
@@ -448,7 +448,7 @@ ocketTimeoutException异常
 
 具体代码如下：（在截图时把一些无关异常/超时处理的代码隐藏了）
 
-![image-20240712223321995](Development Documentation.assets/image-20240712223321995.png)
+![image-20240712223321995](Development%20Documentation.assets/image-20240712223321995.png)
 
 **2. 发送响应数据时，写数据导致的异常/超时**
 
@@ -468,7 +468,7 @@ ocketTimeoutException异常
 
 具体代码如下：
 
-![image-20240712223327640](Development Documentation.assets/image-20240712223327640.png)
+![image-20240712223327640](Development%20Documentation.assets/image-20240712223327640.png)
 
 负载均衡（加分项）
 ------------------
@@ -479,7 +479,7 @@ Quan-RPC框架下，在QuanServiceRegistry类中，服务发现方法discoverSer
 
 具体在第四部分服务发现中有详细介绍。
 
-![image-20240712223333222](Development Documentation.assets/image-20240712223333222.png)
+![image-20240712223333222](Development%20Documentation.assets/image-20240712223333222.png)
 
 在多个服务提供者中随机选择一个进行调用，这种方式简单但有效，可以在一定程度上平衡负载。
 
@@ -487,23 +487,23 @@ Quan-RPC框架下，在QuanServiceRegistry类中，服务发现方法discoverSer
 
 1个服务注册中心，3个服务端（都提供两个服务HelloService和ByeService），10个客户端：
 
-![image-20240712223342740](Development Documentation.assets/image-20240712223342740.png)
+![image-20240712223342740](Development%20Documentation.assets/image-20240712223342740.png)
 
-![image-20240712223346198](Development Documentation.assets/image-20240712223346198.png)
+![image-20240712223346198](Development%20Documentation.assets/image-20240712223346198.png)
 
-![image-20240712223354186](Development Documentation.assets/image-20240712223354186.png)
+![image-20240712223354186](Development%20Documentation.assets/image-20240712223354186.png)
 
-![image-20240712223357929](Development Documentation.assets/image-20240712223357929.png)
+![image-20240712223357929](Development%20Documentation.assets/image-20240712223357929.png)
 
 docker-compose.yml中3个服务器的配置如图所示：
 
-![image-20240712223402320](Development Documentation.assets/image-20240712223402320.png)
+![image-20240712223402320](Development%20Documentation.assets/image-20240712223402320.png)
 
 测试结果：
 
-![image-20240712223412701](Development Documentation.assets/image-20240712223412701.png)
+![image-20240712223412701](Development%20Documentation.assets/image-20240712223412701.png)
 
-![image-20240712223416953](Development Documentation.assets/image-20240712223416953.png)
+![image-20240712223416953](Development%20Documentation.assets/image-20240712223416953.png)
 
 十、网络传输层协议
 ------------------

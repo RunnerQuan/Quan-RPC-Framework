@@ -54,7 +54,7 @@ test-server ------ 服务端测试代码
 Quan-RPC整体架构图
 ------------------
 
-![image-20240712222839726](Development%20Documentation.assets/image-20240712222839726.png)
+<img src="assets/image-20250305174957086.png" alt="image-20250305174957086" style="zoom:50%;" />
 
 消息格式定义，消息序列化和反序列化
 ----------------------------------

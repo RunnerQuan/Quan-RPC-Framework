@@ -1,6 +1,10 @@
-# Quan-RPC Lite
+# Quan-RPC
 
-Quan-RPC Lite是一款使用 Java 实现的基于TCP协议的远程过程调用（RPC）框架，用于在分布式系统中实现服务的远程调用。它通过自定义的协议、借助自定义的服务注册中心在客户端和服务器之间传递数据，确保可靠的通信和高效的服务调用。
+Quan-RPC 是一款使用 Java 实现的基于TCP协议的远程过程调用（RPC）框架，用于在分布式系统中实现服务的远程调用。它通过自定义的协议、借助自定义的服务注册中心在客户端和服务器之间传递数据，确保可靠的通信和高效的服务调用。
+
+## Quan-RPC Lite整体架构图
+
+<img src="docs/assets/image-20250305174957086.png" alt="image-20250305174957086" style="zoom:50%;" />
 
 ## 项目特点：
 - 使用Java原生Socket API（同步阻塞IO模型）
@@ -52,9 +56,3 @@ test-server ------ 服务端测试代码
 客户端：java -jar client.jar -i 192.168.1.16 -p 12375
 
 ![image-20240712222826115](docs/Development%20Documentation.assets/image-20240712222826115.png)
-
-
-
-## Quan-RPC Lite整体架构图
-
-<img src="docs/assets/image-20250305174957086.png" alt="image-20250305174957086" style="zoom:50%;" />
